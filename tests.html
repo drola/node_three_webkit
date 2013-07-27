@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ThreeJS Unit Tests - Using build/Three.js</title>
+  <link rel="stylesheet" href="qunit-1.10.0.css">
+</head>
+<body>
+  <div id="qunit"></div>
+  <script src="qunit-1.10.0.js"></script>
+
+  <!-- add sources to test below -->
+  <script>var THREE = THREE || { REVISION: '58' };
+// based on https://github.com/documentcloud/underscore/blob/bf657be243a075b5e72acc8a83e6f12a564d8f55/underscore.js#L767
+THREE.extend = function ( obj, source ) {
+
+  // ECMAScript5 compatibility based on: http://www.nczonline.net/blog/2012/12/11/are-your-mixins-ecmascript-5-compatible/
+  if ( Object.keys ) {
+
+    var keys = Object.keys( source );
+
+    for (var i = 0, il = keys.length; i < il; i++) {
+
+      var prop = keys[i];
+      Object.defineProperty( obj, prop, Object.getOwnPropertyDescriptor( source, prop ) );
+
+    }
+
+  } else {
+
+    var safeHasOwnProperty = {}.hasOwnProperty;
+
+    for ( var prop in source ) {
+
+      if ( safeHasOwnProperty.call( source, prop ) ) {
+
+        obj[prop] = source[prop];
+
+      }
+
+    }
+
+  }
+
+  return obj;
+
+};
+
+
+
+var assert = require('assert');
+
+
+
+
+  </script>
+  <script src="lib/math/Quaternion.js"></script>
+  <script src="lib/math/Vector2.js"></script>
+  <script src="lib/math/Vector3.js"></script>
+  <script src="lib/math/Vector4.js"></script>
+  <script src="lib/math/Matrix3.js"></script>
+  <script src="lib/math/Matrix4.js"></script>
+  <script src="lib/math/Math.js"></script>
+
+  <script src="lib/math/Box2.js"></script>
+  <script src="lib/math/Line3.js"></script>
+  <script src="lib/math/Plane.js"></script>
+  <script src="lib/math/Spline.js"></script>
+  
+  <script src="lib/math/Box3.js"></script>
+  
+  
+  <script src="lib/math/Triangle.js"></script>
+  
+  <script src="lib/math/Color.js"></script>
+  
+  <script src="lib/math/Ray.js"></script>
+  <script src="lib/math/UV.js"></script>
+  <script src="lib/math/Vertex.js"></script>
+  <script src="lib/math/Frustum.js"></script>
+  
+  <script src="lib/math/Sphere.js"></script>
+
+<script>
+var math = require('./math_native/build/Release/math_native');
+THREE.Vector2 = math.Vector2;
+var v2 = new THREE.Vector2();
+if(v2 instanceof THREE.Vector2) {
+  console.log("Yes :)");
+}
+</script>
+  <!-- add class-based unit tests below -->
+
+  <script src="math/Constants.js"></script>
+  <script src="math/Box2.js"></script>
+  <script src="math/Box3.js"></script>
+  <script src="math/Plane.js"></script>
+  <script src="math/Ray.js"></script>
+  <script src="math/Sphere.js"></script>
+  <script src="math/Triangle.js"></script>
+  <script src="math/Vector2.js"></script>
+  <script src="math/Vector3.js"></script>
+  <script src="math/Vector4.js"></script>
+  <script src="math/Line3.js"></script>
+  <script src="math/Quaternion.js"></script>
+  <script src="math/Matrix3.js"></script>
+  <script src="math/Matrix4.js"></script>
+  <script src="math/Frustum.js"></script>
+</body>
+</html>
