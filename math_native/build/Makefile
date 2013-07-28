@@ -316,8 +316,8 @@ ifeq ($(strip $(foreach prefix,$(NO_LOAD),\
 endif
 
 quiet_cmd_regen_makefile = ACTION Regenerating $@
-cmd_regen_makefile = /home/drola/.nw-gyp/0.6.1/tools/gyp/gyp -fmake --ignore-environment "--toplevel-dir=." -I/var/www/node_three_webkit/math_native/build/config.gypi -I/usr/lib/node_modules/nw-gyp/addon.gypi -I/home/drola/.nw-gyp/0.6.1/common.gypi "--depth=." "-Goutput_dir=." "--generator-output=build" "-Dlibrary=shared_library" "-Dvisibility=default" "-Dnode_root_dir=/home/drola/.nw-gyp/0.6.1" "-Dmodule_root_dir=/var/www/node_three_webkit/math_native" binding.gyp
-Makefile: $(srcdir)/../../../../usr/lib/node_modules/nw-gyp/addon.gypi $(srcdir)/../../../../home/drola/.nw-gyp/0.6.1/common.gypi $(srcdir)/build/config.gypi $(srcdir)/binding.gyp
+cmd_regen_makefile = /home/drola/.nw-gyp/0.6.3/tools/gyp/gyp -fmake --ignore-environment "--toplevel-dir=." -I/var/www/node_three_webkit/math_native/build/config.gypi -I/usr/lib/node_modules/nw-gyp/addon.gypi -I/home/drola/.nw-gyp/0.6.3/common.gypi "--depth=." "-Goutput_dir=." "--generator-output=build" "-Dlibrary=shared_library" "-Dvisibility=default" "-Dnode_root_dir=/home/drola/.nw-gyp/0.6.3" "-Dmodule_root_dir=/var/www/node_three_webkit/math_native" binding.gyp
+Makefile: $(srcdir)/../../../../usr/lib/node_modules/nw-gyp/addon.gypi $(srcdir)/build/config.gypi $(srcdir)/binding.gyp $(srcdir)/../../../../home/drola/.nw-gyp/0.6.3/common.gypi
 	$(call do_cmd,regen_makefile)
 
 # "all" is a concatenation of the "all" targets from all the included

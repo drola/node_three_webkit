@@ -84,10 +84,7 @@ var assert = require('assert');
 <script>
 var math = require('./math_native/build/Release/math_native');
 THREE.Vector2 = math.Vector2;
-var v2 = new THREE.Vector2();
-if(v2 instanceof THREE.Vector2) {
-  console.log("Yes :)");
-}
+THREE.Vector3 = require('./math_native_support/Vector3');
 </script>
   <!-- add class-based unit tests below -->
 

@@ -9,11 +9,12 @@ DEFS_Debug := \
 
 # Flags passed to all source files.
 CFLAGS_Debug := \
+	-fPIC \
 	-Wall \
 	-Wextra \
 	-Wno-unused-parameter \
 	-pthread \
-	-m32 \
+	-m64 \
 	-g \
 	-O0
 
@@ -26,20 +27,21 @@ CFLAGS_CC_Debug := \
 	-fno-exceptions
 
 INCS_Debug := \
-	-I/home/drola/.nw-gyp/0.6.1/src \
-	-I/home/drola/.nw-gyp/0.6.1/deps/uv/include \
-	-I/home/drola/.nw-gyp/0.6.1/deps/v8/include
+	-I/home/drola/.nw-gyp/0.6.3/src \
+	-I/home/drola/.nw-gyp/0.6.3/deps/uv/include \
+	-I/home/drola/.nw-gyp/0.6.3/deps/v8/include
 
 DEFS_Release := \
 	'-DBUILDING_NODE_EXTENSION'
 
 # Flags passed to all source files.
 CFLAGS_Release := \
+	-fPIC \
 	-Wall \
 	-Wextra \
 	-Wno-unused-parameter \
 	-pthread \
-	-m32 \
+	-m64 \
 	-O2 \
 	-fno-strict-aliasing \
 	-fno-tree-vrp
@@ -53,13 +55,15 @@ CFLAGS_CC_Release := \
 	-fno-exceptions
 
 INCS_Release := \
-	-I/home/drola/.nw-gyp/0.6.1/src \
-	-I/home/drola/.nw-gyp/0.6.1/deps/uv/include \
-	-I/home/drola/.nw-gyp/0.6.1/deps/v8/include
+	-I/home/drola/.nw-gyp/0.6.3/src \
+	-I/home/drola/.nw-gyp/0.6.3/deps/uv/include \
+	-I/home/drola/.nw-gyp/0.6.3/deps/v8/include
 
 OBJS := \
+	$(obj).target/$(TARGET)/src/math.o \
 	$(obj).target/$(TARGET)/src/addon.o \
-	$(obj).target/$(TARGET)/src/Vector2.o
+	$(obj).target/$(TARGET)/src/Vector2.o \
+	$(obj).target/$(TARGET)/src/Vector3.o
 
 # Add to the list of files we specially track dependencies for.
 all_deps += $(OBJS)
@@ -88,12 +92,12 @@ $(obj).$(TOOLSET)/$(TARGET)/%.o: $(obj)/%.cc FORCE_DO_CMD
 LDFLAGS_Debug := \
 	-pthread \
 	-rdynamic \
-	-m32
+	-m64
 
 LDFLAGS_Release := \
 	-pthread \
 	-rdynamic \
-	-m32
+	-m64
 
 LIBS :=
 

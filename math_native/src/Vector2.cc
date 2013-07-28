@@ -57,7 +57,7 @@ void Vector2::Init(Handle<Object> exports) {
   tpl->PrototypeTemplate()->Set(String::NewSymbol("lengthSq"),
       FunctionTemplate::New(lengthSq)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("length"),
-      FunctionTemplate::New(length)->GetFunction());/*
+      FunctionTemplate::New(length)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("normalize"),
       FunctionTemplate::New(normalize)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("distanceTo"),
@@ -69,13 +69,13 @@ void Vector2::Init(Handle<Object> exports) {
   tpl->PrototypeTemplate()->Set(String::NewSymbol("lerp"),
       FunctionTemplate::New(lerp)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("equals"),
-      FunctionTemplate::New(equals)->GetFunction());
+      FunctionTemplate::New(equals)->GetFunction());/*
   tpl->PrototypeTemplate()->Set(String::NewSymbol("fromArray"),
       FunctionTemplate::New(fromArray)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("toArray"),
-      FunctionTemplate::New(toArray)->GetFunction());
+      FunctionTemplate::New(toArray)->GetFunction());*/
   tpl->PrototypeTemplate()->Set(String::NewSymbol("clone"),
-      FunctionTemplate::New(clone)->GetFunction());*/
+      FunctionTemplate::New(clone)->GetFunction());
 
   tpl->InstanceTemplate()->SetAccessor(String::New("x"), getVector2X, setVector2X);
   tpl->InstanceTemplate()->SetAccessor(String::New("y"), getVector2Y, setVector2Y);
@@ -406,6 +406,129 @@ Handle<Value> Vector2::length(const Arguments& args) {
 
   return scope.Close(Number::New(std::sqrt(obj->x_ * obj->x_ + obj->y_ * obj->y_)));
 }
+
+Handle<Value> Vector2::normalize(const Arguments& args) {
+  HandleScope scope;
+  Vector2* obj = ObjectWrap::Unwrap<Vector2>(args.This());
+
+  double length = std::sqrt(obj->x_ * obj->x_ + obj->y_ * obj->y_);
+  if(length == 0) {
+    obj->x_ = 0;
+    obj->y_ = 0;
+  } else {
+    obj->x_ /= length;
+    obj->y_ /= length;
+  }
+
+  return scope.Close(args.This());
+}
+
+Handle<Value> Vector2::distanceTo(const Arguments& args) {
+  HandleScope scope;
+  Vector2* obj = ObjectWrap::Unwrap<Vector2>(args.This());
+
+  Local<Object> argObjA = args[0]->ToObject();
+
+  if(!argObjA->Has(String::New("x")) || !argObjA->Has(String::New("y"))) {
+    return scope.Close(ThrowException(Exception::Error(String::New("Vector is missing x or y property"))));
+  }
+
+  double x1 = obj->x_;
+  double y1 = obj->y_;
+  double x2 = argObjA->Get(String::New("x"))->NumberValue();
+  double y2 = argObjA->Get(String::New("y"))->NumberValue();
+  double dx = x2 - x1;
+  double dy = y2 - y1;
+
+  return scope.Close(Number::New(std::sqrt(dx*dx + dy*dy)));
+}
+
+Handle<Value> Vector2::distanceToSquared(const Arguments& args) {
+  HandleScope scope;
+  Vector2* obj = ObjectWrap::Unwrap<Vector2>(args.This());
+
+  Local<Object> argObjA = args[0]->ToObject();
+
+  if(!argObjA->Has(String::New("x")) || !argObjA->Has(String::New("y"))) {
+    return scope.Close(ThrowException(Exception::Error(String::New("Vector is missing x or y property"))));
+  }
+
+  double x1 = obj->x_;
+  double y1 = obj->y_;
+  double x2 = argObjA->Get(String::New("x"))->NumberValue();
+  double y2 = argObjA->Get(String::New("y"))->NumberValue();
+  double dx = x2 - x1;
+  double dy = y2 - y1;
+
+  return scope.Close(Number::New(dx*dx + dy*dy));
+}
+
+Handle<Value> Vector2::setLength(const Arguments& args) {
+  HandleScope scope;
+  Vector2* obj = ObjectWrap::Unwrap<Vector2>(args.This());
+
+  if(!args[0]->IsNumber()) {
+    return scope.Close(ThrowException(Exception::Error(String::New("Given scalar is not a number"))));
+  }
+
+  double newLength = args[0]->NumberValue();
+  double length = std::sqrt(obj->x_ * obj->x_ + obj->y_ * obj->y_);
+
+  if(length != 0) {
+    obj->x_ *= newLength / length;
+    obj->y_ *= newLength / length;
+  }
+
+  return scope.Close(args.This());
+}
+
+Handle<Value> Vector2::lerp(const Arguments& args) {
+  HandleScope scope;
+  Vector2* obj = ObjectWrap::Unwrap<Vector2>(args.This());
+
+  Local<Object> argObjA = args[0]->ToObject();
+  if(!argObjA->Has(String::New("x")) || !argObjA->Has(String::New("y"))) {
+    return scope.Close(ThrowException(Exception::Error(String::New("Vector is missing x or y property"))));
+  }
+  double x2 = argObjA->Get(String::New("x"))->NumberValue();
+  double y2 = argObjA->Get(String::New("y"))->NumberValue();
+
+  if(!args[1]->IsNumber()) {
+    return scope.Close(ThrowException(Exception::Error(String::New("Given scalar is not a number"))));
+  }
+
+  double alpha = args[1]->NumberValue();
+
+  obj->x_ += ( x2 - obj->x_) * alpha;
+  obj->y_ += ( y2 - obj->y_) * alpha;
+
+  return scope.Close(args.This());
+}
+
+Handle<Value> Vector2::equals(const Arguments& args) {
+  HandleScope scope;
+  Vector2* obj = ObjectWrap::Unwrap<Vector2>(args.This());
+
+  Local<Object> argObjA = args[0]->ToObject();
+  if(!argObjA->Has(String::New("x")) || !argObjA->Has(String::New("y"))) {
+    return scope.Close(ThrowException(Exception::Error(String::New("Vector is missing x or y property"))));
+  }
+  double x2 = argObjA->Get(String::New("x"))->NumberValue();
+  double y2 = argObjA->Get(String::New("y"))->NumberValue();
+
+
+  return scope.Close(Boolean::New(x2 == obj->x_ && y2 == obj->y_));
+}
+
+Handle<Value> Vector2::clone(const Arguments& args) {
+  HandleScope scope;
+  Vector2* obj = ObjectWrap::Unwrap<Vector2>(args.This());
+  const unsigned argc = 2;
+  Handle<Value> argv[argc] = { Number::New(obj->x_), Number::New(obj->y_) };
+  Local<Object> instance = constructor->NewInstance(argc, argv);
+  return scope.Close(instance);
+}
+
 
 Handle<Value> Vector2::getVector2X(Local<String> property, const AccessorInfo &info) {
   Vector2* obj = ObjectWrap::Unwrap<Vector2>(info.Holder());
