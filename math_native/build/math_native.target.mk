@@ -63,7 +63,8 @@ OBJS := \
 	$(obj).target/$(TARGET)/src/math.o \
 	$(obj).target/$(TARGET)/src/addon.o \
 	$(obj).target/$(TARGET)/src/Vector2.o \
-	$(obj).target/$(TARGET)/src/Vector3.o
+	$(obj).target/$(TARGET)/src/Vector3.o \
+	$(obj).target/$(TARGET)/src/Vector4.o
 
 # Add to the list of files we specially track dependencies for.
 all_deps += $(OBJS)

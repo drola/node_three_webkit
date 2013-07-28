@@ -1,22 +1,22 @@
 #define BUILDING_NODE_EXTENSION
 #include <node.h>
 #include <cmath>
-#include "Vector3.h"
+#include "Vector4.h"
 #include "math.h"
 
 
 using namespace v8;
 
-Vector3::Vector3() {};
-Vector3::~Vector3() {};
+Vector4::Vector4() {};
+Vector4::~Vector4() {};
 
-Persistent<Function> Vector3::constructor;
+Persistent<Function> Vector4::constructor;
 
-void Vector3::Init(Handle<Object> exports) {
+void Vector4::Init(Handle<Object> exports) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("Vector3"));
-  tpl->InstanceTemplate()->SetInternalFieldCount(3);
+  tpl->SetClassName(String::NewSymbol("Vector4"));
+  tpl->InstanceTemplate()->SetInternalFieldCount(4);
 
   // Prototype
   tpl->PrototypeTemplate()->Set(String::NewSymbol("set"),
@@ -27,6 +27,8 @@ void Vector3::Init(Handle<Object> exports) {
       FunctionTemplate::New(setY)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("setZ"),
       FunctionTemplate::New(setZ)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("setW"),
+      FunctionTemplate::New(setW)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("setComponent"),
       FunctionTemplate::New(setComponent)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("getComponent"),
@@ -80,80 +82,89 @@ void Vector3::Init(Handle<Object> exports) {
   tpl->PrototypeTemplate()->Set(String::NewSymbol("clone"),
       FunctionTemplate::New(clone)->GetFunction());
 
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("angleTo"),
-      FunctionTemplate::New(angleTo)->GetFunction());
 
-  tpl->InstanceTemplate()->SetAccessor(String::New("x"), getVector3X, setVector3X);
-  tpl->InstanceTemplate()->SetAccessor(String::New("y"), getVector3Y, setVector3Y);
-  tpl->InstanceTemplate()->SetAccessor(String::New("z"), getVector3Z, setVector3Z);
+  tpl->InstanceTemplate()->SetAccessor(String::New("x"), getVector4X, setVector4X);
+  tpl->InstanceTemplate()->SetAccessor(String::New("y"), getVector4Y, setVector4Y);
+  tpl->InstanceTemplate()->SetAccessor(String::New("z"), getVector4Z, setVector4Z);
+  tpl->InstanceTemplate()->SetAccessor(String::New("w"), getVector4W, setVector4W);
 
   constructor = Persistent<Function>::New(tpl->GetFunction());
-  exports->Set(String::NewSymbol("Vector3"), constructor);
+  exports->Set(String::NewSymbol("Vector4"), constructor);
 }
 
-Handle<Value> Vector3::New(const Arguments& args) {
+Handle<Value> Vector4::New(const Arguments& args) {
   HandleScope scope;
 
-  Vector3* obj = new Vector3();
+  Vector4* obj = new Vector4();
   obj->x_ = args[0]->IsUndefined() ? 0 : args[0]->NumberValue();
   obj->y_ = args[1]->IsUndefined() ? 0 : args[1]->NumberValue();
   obj->z_ = args[2]->IsUndefined() ? 0 : args[2]->NumberValue();
+  obj->w_ = args[3]->IsUndefined() ? 1 : args[3]->NumberValue();
   obj->Wrap(args.This());
 
   return args.This();
 }
 
-Handle<Value> Vector3::NewInstance(const Arguments& args) {
+Handle<Value> Vector4::NewInstance(const Arguments& args) {
   HandleScope scope;
-  const unsigned argc = 3;
-  Handle<Value> argv[argc] = { args[0], args[1], args[2] };
+  const unsigned argc = 4;
+  Handle<Value> argv[argc] = { args[0], args[1], args[2], args[3] };
   Local<Object> instance = constructor->NewInstance(argc, argv);
   return scope.Close(instance);
 }
 
 
-Handle<Value> Vector3::set(const Arguments& args) {
+Handle<Value> Vector4::set(const Arguments& args) {
   HandleScope scope;
 
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
   obj->x_ = args[0]->IsUndefined() ? 0 : args[0]->NumberValue();
   obj->y_ = args[1]->IsUndefined() ? 0 : args[1]->NumberValue(); //TODO: undefined case!!
   obj->z_ = args[2]->IsUndefined() ? 0 : args[2]->NumberValue();
+  obj->w_ = args[3]->IsUndefined() ? 0 : args[3]->NumberValue();
 
   return scope.Close(args.This());
 }
 
-Handle<Value> Vector3::setX(const Arguments& args) {
+Handle<Value> Vector4::setX(const Arguments& args) {
   HandleScope scope;
 
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
   obj->x_ = args[0]->IsUndefined() ? 0 : args[0]->NumberValue();
 
   return scope.Close(args.This());
 }
 
-Handle<Value> Vector3::setY(const Arguments& args) {
+Handle<Value> Vector4::setY(const Arguments& args) {
   HandleScope scope;
 
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
   obj->y_ = args[0]->IsUndefined() ? 0 : args[0]->NumberValue(); //TODO: undefined case!!
 
   return scope.Close(args.This());
 }
 
-Handle<Value> Vector3::setZ(const Arguments& args) {
+Handle<Value> Vector4::setZ(const Arguments& args) {
   HandleScope scope;
 
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
   obj->z_ = args[0]->IsUndefined() ? 0 : args[0]->NumberValue(); //TODO: undefined case!!
 
   return scope.Close(args.This());
 }
 
-
-Handle<Value> Vector3::setComponent(const Arguments& args) {
+Handle<Value> Vector4::setW(const Arguments& args) {
   HandleScope scope;
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
+
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
+  obj->w_ = args[0]->IsUndefined() ? 0 : args[0]->NumberValue(); //TODO: undefined case!!
+
+  return scope.Close(args.This());
+}
+
+Handle<Value> Vector4::setComponent(const Arguments& args) {
+  HandleScope scope;
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
   int index = args[0]->Int32Value();
   switch(index) {
     case 0:
@@ -165,6 +176,9 @@ Handle<Value> Vector3::setComponent(const Arguments& args) {
     case 2:
     obj->z_ = args[1]->NumberValue();
     break;
+    case 3:
+    obj->w_ = args[1]->NumberValue();
+    break;
     default:
     return scope.Close(ThrowException(Exception::Error(String::Concat(String::New("index is out of range: "), args[0]->ToString()))));
 
@@ -172,9 +186,9 @@ Handle<Value> Vector3::setComponent(const Arguments& args) {
   return scope.Close(Undefined());
 }
 
-Handle<Value> Vector3::getComponent(const Arguments& args) {
+Handle<Value> Vector4::getComponent(const Arguments& args) {
   HandleScope scope;
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
   int index = args[0]->Int32Value();
   switch(index) {
     case 0:
@@ -186,163 +200,176 @@ Handle<Value> Vector3::getComponent(const Arguments& args) {
     case 2:
     return Number::New(obj->z_);
     break;
+    case 3:
+    return Number::New(obj->w_);
+    break;
     default:
     return scope.Close(ThrowException(Exception::Error(String::Concat(String::New("index is out of range: "), args[0]->ToString()))));
   }
 }
 
-Handle<Value> Vector3::copy(const Arguments& args) {
+Handle<Value> Vector4::copy(const Arguments& args) {
   HandleScope scope;
   Local<Object> obj = args[0]->ToObject();
-  if(!obj->Has(String::New("x")) || !obj->Has(String::New("y")) || !obj->Has(String::New("z"))) {
-    return scope.Close(ThrowException(Exception::Error(String::New("Cannot copy from object without x, y and z properties"))));
+  if(!obj->Has(String::New("x")) || !obj->Has(String::New("y")) || !obj->Has(String::New("z")) || !obj->Has(String::New("w"))) {
+    return scope.Close(ThrowException(Exception::Error(String::New("Cannot copy from object without x, y, z and w properties"))));
   }
   args.This()->Set(String::New("x"), obj->Get(String::New("x")));
   args.This()->Set(String::New("y"), obj->Get(String::New("y")));
   args.This()->Set(String::New("z"), obj->Get(String::New("z")));
+  args.This()->Set(String::New("w"), obj->Get(String::New("w")));
 
   return scope.Close(args.This());
 }
 
-Handle<Value> Vector3::add(const Arguments& args) {
+Handle<Value> Vector4::add(const Arguments& args) {
   HandleScope scope;
   Local<Object> argObj = args[0]->ToObject();
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
 
-  if(!argObj->Has(String::New("x")) || !argObj->Has(String::New("y")) || !argObj->Has(String::New("y"))) {
-    return scope.Close(ThrowException(Exception::Error(String::New("Cannot add from object without x, y and z properties"))));
+  if(!argObj->Has(String::New("x")) || !argObj->Has(String::New("y")) || !argObj->Has(String::New("z")) || !argObj->Has(String::New("w"))) {
+    return scope.Close(ThrowException(Exception::Error(String::New("Cannot add from object without x, y, z and w properties"))));
   }
 
   obj->x_ += argObj->Get(String::New("x"))->NumberValue();
   obj->y_ += argObj->Get(String::New("y"))->NumberValue();
   obj->z_ += argObj->Get(String::New("z"))->NumberValue();
+  obj->w_ += argObj->Get(String::New("w"))->NumberValue();
 
   return scope.Close(args.This());
 }
 
-Handle<Value> Vector3::addVectors(const Arguments& args) {
+Handle<Value> Vector4::addVectors(const Arguments& args) {
   HandleScope scope;
   Local<Object> argObjA = args[0]->ToObject();
   Local<Object> argObjB = args[1]->ToObject();
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
 
-  if(!argObjA->Has(String::New("x")) || !argObjA->Has(String::New("y")) || !argObjA->Has(String::New("z"))) {
-    return scope.Close(ThrowException(Exception::Error(String::New("First vector is missing x, y or z property"))));
+  if(!argObjA->Has(String::New("x")) || !argObjA->Has(String::New("y")) || !argObjA->Has(String::New("z")) || !argObjA->Has(String::New("w"))) {
+    return scope.Close(ThrowException(Exception::Error(String::New("First vector is missing x, y, z or w property"))));
   }
-  if(!argObjB->Has(String::New("x")) || !argObjB->Has(String::New("y")) || !argObjB->Has(String::New("z"))) {
-    return scope.Close(ThrowException(Exception::Error(String::New("Second vector is missing x, y or z property"))));
+  if(!argObjB->Has(String::New("x")) || !argObjB->Has(String::New("y")) || !argObjB->Has(String::New("z")) || !argObjB->Has(String::New("w"))) {
+    return scope.Close(ThrowException(Exception::Error(String::New("Second vector is missing x, y, z or w property"))));
   }
 
   obj->x_ = argObjA->Get(String::New("x"))->NumberValue() + argObjB->Get(String::New("x"))->NumberValue();
   obj->y_ = argObjA->Get(String::New("y"))->NumberValue() + argObjB->Get(String::New("y"))->NumberValue();
   obj->z_ = argObjA->Get(String::New("z"))->NumberValue() + argObjB->Get(String::New("z"))->NumberValue();
+  obj->w_ = argObjA->Get(String::New("w"))->NumberValue() + argObjB->Get(String::New("w"))->NumberValue();
 
   return scope.Close(args.This());
 }
 
-Handle<Value> Vector3::sub(const Arguments& args) {
+Handle<Value> Vector4::sub(const Arguments& args) {
   HandleScope scope;
   Local<Object> argObj = args[0]->ToObject();
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
 
-  if(!argObj->Has(String::New("x")) || !argObj->Has(String::New("y")) || !argObj->Has(String::New("z"))) {
-    return scope.Close(ThrowException(Exception::Error(String::New("Cannot add from object without x, y and z properties"))));
+  if(!argObj->Has(String::New("x")) || !argObj->Has(String::New("y")) || !argObj->Has(String::New("z")) || !argObj->Has(String::New("w"))) {
+    return scope.Close(ThrowException(Exception::Error(String::New("Cannot add from object without x, y, z and w properties"))));
   }
 
   obj->x_ -= argObj->Get(String::New("x"))->NumberValue();
   obj->y_ -= argObj->Get(String::New("y"))->NumberValue();
   obj->z_ -= argObj->Get(String::New("z"))->NumberValue();
+  obj->w_ -= argObj->Get(String::New("w"))->NumberValue();
 
   return scope.Close(args.This());
 }
 
-Handle<Value> Vector3::subVectors(const Arguments& args) {
+Handle<Value> Vector4::subVectors(const Arguments& args) {
   HandleScope scope;
   Local<Object> argObjA = args[0]->ToObject();
   Local<Object> argObjB = args[1]->ToObject();
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
 
-  if(!argObjA->Has(String::New("x")) || !argObjA->Has(String::New("y")) || !argObjA->Has(String::New("z"))) {
-    return scope.Close(ThrowException(Exception::Error(String::New("First vector is missing x, y or z property"))));
+  if(!argObjA->Has(String::New("x")) || !argObjA->Has(String::New("y")) || !argObjA->Has(String::New("z")) || !argObjA->Has(String::New("w"))) {
+    return scope.Close(ThrowException(Exception::Error(String::New("First vector is missing x, y, z or w property"))));
   }
-  if(!argObjB->Has(String::New("x")) || !argObjB->Has(String::New("y")) || !argObjB->Has(String::New("z"))) {
-    return scope.Close(ThrowException(Exception::Error(String::New("Second vector is missing x, y or z property"))));
+  if(!argObjB->Has(String::New("x")) || !argObjB->Has(String::New("y")) || !argObjB->Has(String::New("z")) || !argObjB->Has(String::New("w"))) {
+    return scope.Close(ThrowException(Exception::Error(String::New("Second vector is missing x, y, z or w property"))));
   }
 
   obj->x_ = argObjA->Get(String::New("x"))->NumberValue() - argObjB->Get(String::New("x"))->NumberValue();
   obj->y_ = argObjA->Get(String::New("y"))->NumberValue() - argObjB->Get(String::New("y"))->NumberValue();
   obj->z_ = argObjA->Get(String::New("z"))->NumberValue() - argObjB->Get(String::New("z"))->NumberValue();
+  obj->w_ = argObjA->Get(String::New("w"))->NumberValue() - argObjB->Get(String::New("w"))->NumberValue();
 
   return scope.Close(args.This());
 }
 
 
-Handle<Value> Vector3::addScalar(const Arguments& args) {
+Handle<Value> Vector4::addScalar(const Arguments& args) {
   HandleScope scope;
   if(!args[0]->IsNumber()) {
     return scope.Close(ThrowException(Exception::Error(String::New("Only numbers can be added to vector coordinates"))));
   }
 
   double s = args[0]->NumberValue();
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
 
   obj->x_ += s;
   obj->y_ += s;
   obj->z_ += s;
+  obj->w_ += s;
 
   return scope.Close(args.This());
 }
 
-Handle<Value> Vector3::multiplyScalar(const Arguments& args) {
+Handle<Value> Vector4::multiplyScalar(const Arguments& args) {
   HandleScope scope;
   if(!args[0]->IsNumber()) {
     return scope.Close(ThrowException(Exception::Error(String::New("Given scalar is not a number"))));
   }
 
   double s = args[0]->NumberValue();
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
 
   obj->x_ *= s;
   obj->y_ *= s;
   obj->z_ *= s;
+  obj->w_ *= s;
 
   return scope.Close(args.This());
 }
 
-Handle<Value> Vector3::divideScalar(const Arguments& args) {
+Handle<Value> Vector4::divideScalar(const Arguments& args) {
   HandleScope scope;
   if(!args[0]->IsNumber()) {
     return scope.Close(ThrowException(Exception::Error(String::New("Given scalar is not a number"))));
   }
 
   double s = args[0]->NumberValue();
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
 
   if(s != 0) {
     obj->x_ /= s;
     obj->y_ /= s;
     obj->z_ /= s;
+    obj->w_ /= s;
   } else {
     obj->x_ = 0;
     obj->y_ = 0;
     obj->z_ = 0;
+    obj->w_ = 0;
   }
 
   return scope.Close(args.This());
 }
 
-Handle<Value> Vector3::min(const Arguments& args) {
+Handle<Value> Vector4::min(const Arguments& args) {
   HandleScope scope;
   Local<Object> argObj = args[0]->ToObject();
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
 
-  if(!argObj->Has(String::New("x")) || !argObj->Has(String::New("y")) || !argObj->Has(String::New("z"))) {
-    return scope.Close(ThrowException(Exception::Error(String::New("Cannot add from object without x, y and z properties"))));
+  if(!argObj->Has(String::New("x")) || !argObj->Has(String::New("y")) || !argObj->Has(String::New("z")) || !argObj->Has(String::New("w"))) {
+    return scope.Close(ThrowException(Exception::Error(String::New("Cannot add from object without x, y, z and w properties"))));
   }
 
   double arg_x = argObj->Get(String::New("x"))->NumberValue();
   double arg_y = argObj->Get(String::New("y"))->NumberValue();
   double arg_z = argObj->Get(String::New("z"))->NumberValue();
+  double arg_w = argObj->Get(String::New("w"))->NumberValue();
   if(arg_x < obj->x_) {
     obj->x_ = arg_x;
   }
@@ -352,21 +379,25 @@ Handle<Value> Vector3::min(const Arguments& args) {
   if(arg_z < obj->z_) {
     obj->z_ = arg_z;
   }
+  if(arg_w < obj->w_) {
+    obj->w_ = arg_w;
+  }
   return scope.Close(args.This());
 }
 
-Handle<Value> Vector3::max(const Arguments& args) {
+Handle<Value> Vector4::max(const Arguments& args) {
   HandleScope scope;
   Local<Object> argObj = args[0]->ToObject();
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
 
-  if(!argObj->Has(String::New("x")) || !argObj->Has(String::New("y")) || !argObj->Has(String::New("z"))) {
-    return scope.Close(ThrowException(Exception::Error(String::New("Cannot add from object without x, y and z properties"))));
+  if(!argObj->Has(String::New("x")) || !argObj->Has(String::New("y")) || !argObj->Has(String::New("z")) || !argObj->Has(String::New("w"))) {
+    return scope.Close(ThrowException(Exception::Error(String::New("Cannot add from object without x, y, z and w properties"))));
   }
 
   double arg_x = argObj->Get(String::New("x"))->NumberValue();
   double arg_y = argObj->Get(String::New("y"))->NumberValue();
   double arg_z = argObj->Get(String::New("z"))->NumberValue();
+  double arg_w = argObj->Get(String::New("w"))->NumberValue();
 
   if(arg_x > obj->x_) {
     obj->x_ = arg_x;
@@ -377,29 +408,35 @@ Handle<Value> Vector3::max(const Arguments& args) {
   if(arg_z > obj->z_) {
     obj->z_ = arg_z;
   }
+  if(arg_w > obj->w_) {
+    obj->w_ = arg_w;
+  }
   return scope.Close(args.This());
 }
 
-Handle<Value> Vector3::clamp(const Arguments& args) {
+Handle<Value> Vector4::clamp(const Arguments& args) {
   HandleScope scope;
 
   Local<Object> argObjA = args[0]->ToObject();
   Local<Object> argObjB = args[1]->ToObject();
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
 
-  if(!argObjA->Has(String::New("x")) || !argObjA->Has(String::New("y")) || !argObjA->Has(String::New("z"))) {
+  if(!argObjA->Has(String::New("x")) || !argObjA->Has(String::New("y")) || !argObjA->Has(String::New("z")) || !argObjA->Has(String::New("w"))) {
     return scope.Close(ThrowException(Exception::Error(String::New("First vector is missing x, y or z property"))));
   }
-  if(!argObjB->Has(String::New("x")) || !argObjB->Has(String::New("y")) || !argObjB->Has(String::New("z"))) {
+  if(!argObjB->Has(String::New("x")) || !argObjB->Has(String::New("y")) || !argObjB->Has(String::New("z")) || !argObjB->Has(String::New("w"))) {
     return scope.Close(ThrowException(Exception::Error(String::New("Second vector is missing x, y or z property"))));
   }
+
 
   double min_x = argObjA->Get(String::New("x"))->NumberValue();
   double min_y = argObjA->Get(String::New("y"))->NumberValue();
   double min_z = argObjA->Get(String::New("z"))->NumberValue();
+  double min_w = argObjA->Get(String::New("w"))->NumberValue();
   double max_x = argObjB->Get(String::New("x"))->NumberValue();
   double max_y = argObjB->Get(String::New("y"))->NumberValue();
   double max_z = argObjB->Get(String::New("z"))->NumberValue();
+  double max_w = argObjB->Get(String::New("w"))->NumberValue();
 
   if(obj->x_ < min_x) {
     obj->x_ = min_x;
@@ -416,144 +453,161 @@ Handle<Value> Vector3::clamp(const Arguments& args) {
   } else if(obj->z_ > max_z) {
     obj->z_ = max_z;
   }
+  if(obj->w_ < min_w) {
+    obj->w_ = min_w;
+  } else if(obj->w_ > max_w) {
+    obj->w_ = max_w;
+  }
 
   return scope.Close(args.This());
 }
 
-Handle<Value> Vector3::negate(const Arguments& args) {
+Handle<Value> Vector4::negate(const Arguments& args) {
   HandleScope scope;
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
 
   obj->x_ *= -1;
   obj->y_ *= -1;
   obj->z_ *= -1;
+  obj->w_ *= -1;
 
   return scope.Close(args.This());
 }
 
-Handle<Value> Vector3::dot(const Arguments& args) {
+Handle<Value> Vector4::dot(const Arguments& args) {
   HandleScope scope;
   Local<Object> argObj = args[0]->ToObject();
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
 
-  if(!argObj->Has(String::New("x")) || !argObj->Has(String::New("y")) || !argObj->Has(String::New("z"))) {
-    return scope.Close(ThrowException(Exception::Error(String::New("Cannot do dot product with object without x, y and z properties"))));
+  if(!argObj->Has(String::New("x")) || !argObj->Has(String::New("y")) || !argObj->Has(String::New("z")) || !argObj->Has(String::New("w"))) {
+    return scope.Close(ThrowException(Exception::Error(String::New("Cannot do dot product with object without x, y, z and w properties"))));
   }
 
   return scope.Close(Number::New(obj->x_ * argObj->Get(String::New("x"))->NumberValue()
     + obj->y_ * argObj->Get(String::New("y"))->NumberValue()
-    + obj->z_ * argObj->Get(String::New("z"))->NumberValue()));
+    + obj->z_ * argObj->Get(String::New("z"))->NumberValue()
+    + obj->w_ * argObj->Get(String::New("w"))->NumberValue()));
 }
 
-Handle<Value> Vector3::lengthSq(const Arguments& args) {
+Handle<Value> Vector4::lengthSq(const Arguments& args) {
   HandleScope scope;
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
 
-  return scope.Close(Number::New(obj->x_ * obj->x_ + obj->y_ * obj->y_ + obj->z_ * obj->z_));
+  return scope.Close(Number::New(obj->x_ * obj->x_ + obj->y_ * obj->y_ + obj->z_ * obj->z_ + obj->w_ * obj->w_));
 }
 
-Handle<Value> Vector3::length(const Arguments& args) {
+Handle<Value> Vector4::length(const Arguments& args) {
   HandleScope scope;
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
 
-  return scope.Close(Number::New(std::sqrt(obj->x_ * obj->x_ + obj->y_ * obj->y_ + obj->z_ * obj->z_)));
+  return scope.Close(Number::New(std::sqrt(obj->x_ * obj->x_ + obj->y_ * obj->y_ + obj->z_ * obj->z_ + obj->w_ * obj->w_)));
 }
 
-Handle<Value> Vector3::normalize(const Arguments& args) {
+Handle<Value> Vector4::normalize(const Arguments& args) {
   HandleScope scope;
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
 
-  double length = std::sqrt(obj->x_ * obj->x_ + obj->y_ * obj->y_ + obj->z_ * obj->z_);
+  double length = std::sqrt(obj->x_ * obj->x_ + obj->y_ * obj->y_ + obj->z_ * obj->z_ + obj->w_ * obj->w_);
   if(length == 0) {
     obj->x_ = 0;
     obj->y_ = 0;
     obj->z_ = 0;
+    obj->w_ = 0;
   } else {
     obj->x_ /= length;
     obj->y_ /= length;
     obj->z_ /= length;
+    obj->w_ /= length;
   }
 
   return scope.Close(args.This());
 }
 
-Handle<Value> Vector3::distanceTo(const Arguments& args) {
+Handle<Value> Vector4::distanceTo(const Arguments& args) {
   HandleScope scope;
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
 
   Local<Object> argObjA = args[0]->ToObject();
 
-  if(!argObjA->Has(String::New("x")) || !argObjA->Has(String::New("y")) || !argObjA->Has(String::New("z"))) {
-    return scope.Close(ThrowException(Exception::Error(String::New("Vector is missing x, y or z property"))));
+  if(!argObjA->Has(String::New("x")) || !argObjA->Has(String::New("y")) || !argObjA->Has(String::New("z")) || !argObjA->Has(String::New("w"))) {
+    return scope.Close(ThrowException(Exception::Error(String::New("Vector is missing x, y, z or w property"))));
   }
 
   double x1 = obj->x_;
   double y1 = obj->y_;
   double z1 = obj->z_;
+  double w1 = obj->w_;
   double x2 = argObjA->Get(String::New("x"))->NumberValue();
   double y2 = argObjA->Get(String::New("y"))->NumberValue();
   double z2 = argObjA->Get(String::New("z"))->NumberValue();
+  double w2 = argObjA->Get(String::New("w"))->NumberValue();
   double dx = x2 - x1;
   double dy = y2 - y1;
   double dz = z2 - z1;
+  double dw = w2 - w1;
 
-  return scope.Close(Number::New(std::sqrt(dx*dx + dy*dy + dz*dz)));
+  return scope.Close(Number::New(std::sqrt(dx*dx + dy*dy + dz*dz + dw*dw)));
 }
 
-Handle<Value> Vector3::distanceToSquared(const Arguments& args) {
+Handle<Value> Vector4::distanceToSquared(const Arguments& args) {
   HandleScope scope;
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
 
   Local<Object> argObjA = args[0]->ToObject();
 
-  if(!argObjA->Has(String::New("x")) || !argObjA->Has(String::New("y")) || !argObjA->Has(String::New("z"))) {
-    return scope.Close(ThrowException(Exception::Error(String::New("Vector is missing x, y or z property"))));
+  if(!argObjA->Has(String::New("x")) || !argObjA->Has(String::New("y")) || !argObjA->Has(String::New("z")) || !argObjA->Has(String::New("w"))) {
+    return scope.Close(ThrowException(Exception::Error(String::New("Vector is missing x, y, z or w property"))));
   }
 
   double x1 = obj->x_;
   double y1 = obj->y_;
   double z1 = obj->z_;
+  double w1 = obj->w_;
   double x2 = argObjA->Get(String::New("x"))->NumberValue();
   double y2 = argObjA->Get(String::New("y"))->NumberValue();
   double z2 = argObjA->Get(String::New("z"))->NumberValue();
+  double w2 = argObjA->Get(String::New("w"))->NumberValue();
   double dx = x2 - x1;
   double dy = y2 - y1;
   double dz = z2 - z1;
+  double dw = w2 - w1;
 
-  return scope.Close(Number::New(dx*dx + dy*dy + dz*dz));
+  return scope.Close(Number::New(dx*dx + dy*dy + dz*dz + dw*dw));
 }
 
-Handle<Value> Vector3::setLength(const Arguments& args) {
+Handle<Value> Vector4::setLength(const Arguments& args) {
   HandleScope scope;
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
 
   if(!args[0]->IsNumber()) {
     return scope.Close(ThrowException(Exception::Error(String::New("Given scalar is not a number"))));
   }
 
   double newLength = args[0]->NumberValue();
-  double length = std::sqrt(obj->x_ * obj->x_ + obj->y_ * obj->y_ + obj->z_ * obj->z_);
+  double length = std::sqrt(obj->x_ * obj->x_ + obj->y_ * obj->y_ + obj->z_ * obj->z_ + obj->w_ * obj->w_);
 
   if(length != 0) {
     obj->x_ *= newLength / length;
     obj->y_ *= newLength / length;
     obj->z_ *= newLength / length;
+    obj->w_ *= newLength / length;
   }
 
   return scope.Close(args.This());
 }
 
-Handle<Value> Vector3::lerp(const Arguments& args) {
+Handle<Value> Vector4::lerp(const Arguments& args) {
   HandleScope scope;
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
 
   Local<Object> argObjA = args[0]->ToObject();
-  if(!argObjA->Has(String::New("x")) || !argObjA->Has(String::New("y")) || !argObjA->Has(String::New("z"))) {
-    return scope.Close(ThrowException(Exception::Error(String::New("Vector is missing x, y or z property"))));
+  if(!argObjA->Has(String::New("x")) || !argObjA->Has(String::New("y")) || !argObjA->Has(String::New("z")) || !argObjA->Has(String::New("w"))) {
+    return scope.Close(ThrowException(Exception::Error(String::New("Vector is missing x, y, z or w property"))));
   }
   double x2 = argObjA->Get(String::New("x"))->NumberValue();
   double y2 = argObjA->Get(String::New("y"))->NumberValue();
   double z2 = argObjA->Get(String::New("z"))->NumberValue();
+  double w2 = argObjA->Get(String::New("w"))->NumberValue();
 
   if(!args[1]->IsNumber()) {
     return scope.Close(ThrowException(Exception::Error(String::New("Given scalar is not a number"))));
@@ -564,81 +618,73 @@ Handle<Value> Vector3::lerp(const Arguments& args) {
   obj->x_ += ( x2 - obj->x_) * alpha;
   obj->y_ += ( y2 - obj->y_) * alpha;
   obj->z_ += ( z2 - obj->z_) * alpha;
+  obj->w_ += ( w2 - obj->w_) * alpha;
 
   return scope.Close(args.This());
 }
 
-Handle<Value> Vector3::equals(const Arguments& args) {
+Handle<Value> Vector4::equals(const Arguments& args) {
   HandleScope scope;
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
 
   Local<Object> argObjA = args[0]->ToObject();
-  if(!argObjA->Has(String::New("x")) || !argObjA->Has(String::New("y")) || !argObjA->Has(String::New("z"))) {
-    return scope.Close(ThrowException(Exception::Error(String::New("Vector is missing x, y or z property"))));
+  if(!argObjA->Has(String::New("x")) || !argObjA->Has(String::New("y")) || !argObjA->Has(String::New("z")) || !argObjA->Has(String::New("w"))) {
+    return scope.Close(ThrowException(Exception::Error(String::New("Vector is missing x, y, z or w property"))));
   }
   double x2 = argObjA->Get(String::New("x"))->NumberValue();
   double y2 = argObjA->Get(String::New("y"))->NumberValue();
   double z2 = argObjA->Get(String::New("z"))->NumberValue();
+  double w2 = argObjA->Get(String::New("w"))->NumberValue();
 
-
-  return scope.Close(Boolean::New(x2 == obj->x_ && y2 == obj->y_ && z2 == obj->z_));
+  return scope.Close(Boolean::New(x2 == obj->x_ && y2 == obj->y_ && z2 == obj->z_ && w2 == obj->w_));
 }
 
-Handle<Value> Vector3::clone(const Arguments& args) {
+Handle<Value> Vector4::clone(const Arguments& args) {
   HandleScope scope;
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
-  const unsigned argc = 3;
-  Handle<Value> argv[argc] = { Number::New(obj->x_), Number::New(obj->y_), Number::New(obj->z_) };
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(args.This());
+  const unsigned argc = 4;
+  Handle<Value> argv[argc] = { Number::New(obj->x_), Number::New(obj->y_), Number::New(obj->z_), Number::New(obj->w_) };
   Local<Object> instance = constructor->NewInstance(argc, argv);
   return scope.Close(instance);
 }
 
-Handle<Value> Vector3::angleTo(const Arguments& args) {
-  HandleScope scope;
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(args.This());
-
-  Local<Object> argObjA = args[0]->ToObject();
-  if(!argObjA->Has(String::New("x")) || !argObjA->Has(String::New("y")) || !argObjA->Has(String::New("z"))) {
-    return scope.Close(ThrowException(Exception::Error(String::New("Vector is missing x, y or z property"))));
-  }
-  double x2 = argObjA->Get(String::New("x"))->NumberValue();
-  double y2 = argObjA->Get(String::New("y"))->NumberValue();
-  double z2 = argObjA->Get(String::New("z"))->NumberValue();
-
-
-  return scope.Close(Number::New(
-    std::acos( math::clamp( (x2*obj->x_ + y2*obj->y_ + z2*obj->z_) / std::sqrt( (obj->x_ * obj->x_ + obj->y_ * obj->y_ + obj->z_ * obj->z_) * (x2 * x2 + y2*y2 + z2*z2)), -1, 1)
-      )));
-}
-
-
-Handle<Value> Vector3::getVector3X(Local<String> property, const AccessorInfo &info) {
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(info.Holder());
+Handle<Value> Vector4::getVector4X(Local<String> property, const AccessorInfo &info) {
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(info.Holder());
   return Number::New(obj->x_);
 }
 
-void Vector3::setVector3X(Local<String> property, Local<Value> value, const AccessorInfo &info) {
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(info.Holder());
+void Vector4::setVector4X(Local<String> property, Local<Value> value, const AccessorInfo &info) {
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(info.Holder());
   obj->x_ = value->NumberValue();
 }
 
 
-Handle<Value> Vector3::getVector3Y(Local<String> property, const AccessorInfo &info) {
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(info.Holder());
+Handle<Value> Vector4::getVector4Y(Local<String> property, const AccessorInfo &info) {
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(info.Holder());
   return Number::New(obj->y_);
 }
 
-void Vector3::setVector3Y(Local<String> property, Local<Value> value, const AccessorInfo &info) {
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(info.Holder());
+void Vector4::setVector4Y(Local<String> property, Local<Value> value, const AccessorInfo &info) {
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(info.Holder());
   obj->y_ = value->NumberValue();
 }
 
-Handle<Value> Vector3::getVector3Z(Local<String> property, const AccessorInfo &info) {
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(info.Holder());
+Handle<Value> Vector4::getVector4Z(Local<String> property, const AccessorInfo &info) {
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(info.Holder());
   return Number::New(obj->z_);
 }
 
-void Vector3::setVector3Z(Local<String> property, Local<Value> value, const AccessorInfo &info) {
-  Vector3* obj = ObjectWrap::Unwrap<Vector3>(info.Holder());
+void Vector4::setVector4Z(Local<String> property, Local<Value> value, const AccessorInfo &info) {
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(info.Holder());
   obj->z_ = value->NumberValue();
+}
+
+Handle<Value> Vector4::getVector4W(Local<String> property, const AccessorInfo &info) {
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(info.Holder());
+  return Number::New(obj->w_);
+}
+
+void Vector4::setVector4W(Local<String> property, Local<Value> value, const AccessorInfo &info) {
+  Vector4* obj = ObjectWrap::Unwrap<Vector4>(info.Holder());
+  obj->w_ = value->NumberValue();
 }

@@ -83,8 +83,9 @@ var assert = require('assert');
 
 <script>
 var math = require('./math_native/build/Release/math_native');
-THREE.Vector2 = math.Vector2;
+THREE.Vector2 = require('./math_native_support/Vector2');
 THREE.Vector3 = require('./math_native_support/Vector3');
+THREE.Vector4 = require('./math_native_support/Vector4');
 </script>
   <!-- add class-based unit tests below -->
 
